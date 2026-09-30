@@ -1,0 +1,6 @@
+{
+  "name": "OmniAgency OS — Digital Marketing Agency Operating System",
+  "description": "Production-ready SaaS platform for digital marketing agencies to manage clients, video & graphic design workflows, dynamic custom fields, tasks, deliverables, approvals, invoices, and performance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

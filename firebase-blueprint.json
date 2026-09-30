@@ -1,0 +1,486 @@
+{
+  "entities": {
+    "Agency": {
+      "title": "Agency",
+      "description": "Multi-tenant digital marketing agency workspace settings and configuration",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique agency ID"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "description": "Agency business name"
+        },
+        "tagline": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Agency tagline or slogan"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Primary agency business email"
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Contact phone number"
+        },
+        "address": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Office physical address"
+        },
+        "website": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Agency website URL"
+        },
+        "currency": {
+          "type": "string",
+          "maxLength": 10,
+          "description": "Default billing currency code"
+        },
+        "subscriptionPlan": {
+          "type": "string",
+          "enum": ["Starter", "Growth", "Enterprise Pro"],
+          "description": "SaaS subscription tier"
+        },
+        "ownerId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "User ID of the agency owner"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "name", "email", "subscriptionPlan", "createdAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Agency team member or admin account",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique user ID"
+        },
+        "orgId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Agency organization ID tenant"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "description": "Full name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User email address"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "manager", "employee", "call_center"],
+          "description": "Access control role"
+        },
+        "employeeTitle": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Designation or title"
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Account status flag"
+        },
+        "joinedDate": {
+          "type": "string",
+          "description": "Date joined"
+        }
+      },
+      "required": ["id", "orgId", "name", "email", "role", "active"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Digital marketing client account",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique client ID"
+        },
+        "orgId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Agency tenant ID"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Client contact person"
+        },
+        "company": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Client company name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Client email"
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Phone number"
+        },
+        "industry": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Business industry"
+        },
+        "mobileNumber": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Primary mobile number"
+        },
+        "mainBusinessAssets": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Business products or assets description"
+        },
+        "projectType": {
+          "type": "string",
+          "enum": ["Video", "Image", "Campaign", "Other"],
+          "description": "Primary project deliverable type"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Contract total price"
+        },
+        "advance": {
+          "type": "number",
+          "description": "Advance payment received"
+        },
+        "due": {
+          "type": "number",
+          "description": "Remaining payment due"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "inactive", "lead"],
+          "description": "Client lifecycle status"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Created timestamp"
+        }
+      },
+      "required": ["id", "orgId", "name", "company", "email"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Agency client project or campaign",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique project ID"
+        },
+        "orgId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Agency tenant ID"
+        },
+        "clientId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Associated client ID"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Project title"
+        },
+        "campaignName": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Campaign name"
+        },
+        "taskCategory": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Task Category (e.g. Video Editing, Graphic Designer)"
+        },
+        "assignedTo": {
+          "type": "string",
+          "description": "Assigned employee ID"
+        },
+        "assignedToName": {
+          "type": "string",
+          "description": "Assigned employee name"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "urgent"],
+          "description": "Campaign priority level"
+        },
+        "assignedDate": {
+          "type": "string",
+          "description": "Date assigned"
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Deadline date and time"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Project scope"
+        },
+        "budget": {
+          "type": "number",
+          "description": "Project budget amount"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["planning", "active", "in_progress", "under_review", "on_hold", "completed", "cancelled"],
+          "description": "Project status"
+        },
+        "progress": {
+          "type": "number",
+          "description": "Completion percentage 0 to 100"
+        },
+        "script": {
+          "type": "string",
+          "description": "Video script and notes"
+        },
+        "sizes": {
+          "type": "array",
+          "description": "Target video aspect ratios"
+        },
+        "logoFileUrl": {
+          "type": "string",
+          "description": "Logo preview URL"
+        },
+        "logoShareLink": {
+          "type": "string",
+          "description": "External cloud drive logo link"
+        },
+        "graphicDesignNotes": {
+          "type": "string",
+          "description": "Graphic design guidelines"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "orgId", "clientId", "name", "status"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Creative or operational agency task with deliverables and reviews",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique task ID"
+        },
+        "orgId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Agency tenant ID"
+        },
+        "clientId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Associated client ID"
+        },
+        "projectId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Associated project ID"
+        },
+        "assignedEmployeeId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Assigned team member ID"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Task headline"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 3000,
+          "description": "Task brief"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "urgent"],
+          "description": "Task priority level"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "assigned",
+            "in_progress",
+            "submitted",
+            "under_review",
+            "revision_required",
+            "approved",
+            "completed",
+            "overdue",
+            "cancelled"
+          ],
+          "description": "Current workflow state"
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Delivery deadline"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Task created at"
+        }
+      },
+      "required": ["id", "orgId", "clientId", "projectId", "title", "priority", "status"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Client billing invoice",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Invoice ID"
+        },
+        "orgId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Agency tenant ID"
+        },
+        "clientId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Client ID"
+        },
+        "invoiceNumber": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Display invoice number"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Gross invoice total"
+        },
+        "paidAmount": {
+          "type": "number",
+          "description": "Total amount paid to date"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["unpaid", "partially_paid", "paid", "overdue", "cancelled"],
+          "description": "Payment status"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Invoice generation date"
+        }
+      },
+      "required": ["id", "orgId", "clientId", "invoiceNumber", "totalAmount", "status"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Payment received against an invoice",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Payment ID"
+        },
+        "orgId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Agency tenant ID"
+        },
+        "invoiceId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Invoice ID"
+        },
+        "clientId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Client ID"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Payment amount received"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Payment method used"
+        },
+        "referenceNo": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Transaction reference"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Payment date"
+        }
+      },
+      "required": ["id", "orgId", "invoiceId", "clientId", "amount"]
+    }
+  },
+  "firestore": {
+    "/agencies/{agencyId}": {
+      "schema": "Agency",
+      "description": "Agency organization tenant profile and subscription settings"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Agency members, managers, and administrators"
+    },
+    "/clients/{clientId}": {
+      "schema": "Client",
+      "description": "Clients belonging to an agency"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Client projects and campaigns"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Creative tasks, deliverables, and approval states"
+    },
+    "/invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Agency billing invoices"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Invoice payments"
+    }
+  }
+}

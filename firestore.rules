@@ -1,0 +1,218 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net: Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global hardened primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Diagnostic connection test endpoint
+    match /test/connection {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ==========================================
+    // AGENCIES COLLECTION
+    // ==========================================
+    function isValidAgency(data) {
+      return data.id is string && isValidId(data.id)
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 100
+        && data.email is string && data.email.size() <= 100
+        && data.subscriptionPlan in ['Starter', 'Growth', 'Enterprise Pro']
+        && (!('tagline' in data) || (data.tagline is string && data.tagline.size() <= 200))
+        && (!('website' in data) || (data.website is string && data.website.size() <= 150));
+    }
+
+    match /agencies/{agencyId} {
+      allow get: if isSignedIn() && isValidId(agencyId);
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(agencyId) && isValidAgency(incoming());
+      allow update: if isSignedIn() && isValidId(agencyId) && isValidAgency(incoming())
+                    && incoming().id == existing().id;
+      allow delete: if false;
+    }
+
+    // ==========================================
+    // USERS COLLECTION
+    // ==========================================
+    function isValidUser(data) {
+      return data.id is string && isValidId(data.id)
+        && data.orgId is string && isValidId(data.orgId)
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 100
+        && data.email is string && data.email.size() <= 100
+        && data.role in ['admin', 'manager', 'employee', 'call_center']
+        && data.active is bool;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create: if isSignedIn() && isValidId(userId) && isValidUser(incoming());
+      allow update: if isSignedIn() && isValidId(userId) && isValidUser(incoming())
+                    && incoming().id == existing().id
+                    && incoming().orgId == existing().orgId;
+      allow delete: if false;
+    }
+
+    // ==========================================
+    // CLIENTS COLLECTION
+    // ==========================================
+    function isValidClient(data) {
+      return data.id is string && isValidId(data.id)
+        && data.orgId is string && isValidId(data.orgId)
+        && data.name is string && data.name.size() <= 100
+        && data.company is string && data.company.size() <= 100
+        && data.email is string && data.email.size() <= 100
+        && (!('status' in data) || data.status in ['active', 'inactive', 'lead']);
+    }
+
+    match /clients/{clientId} {
+      allow get: if isSignedIn() && isValidId(clientId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create: if isSignedIn() && isValidId(clientId) && isValidClient(incoming());
+      allow update: if isSignedIn() && isValidId(clientId) && isValidClient(incoming())
+                    && incoming().id == existing().id
+                    && incoming().orgId == existing().orgId;
+      allow delete: if isSignedIn() && isValidId(clientId);
+    }
+
+    // ==========================================
+    // PROJECTS COLLECTION
+    // ==========================================
+    function isValidProject(data) {
+      return data.id is string && isValidId(data.id)
+        && data.orgId is string && isValidId(data.orgId)
+        && data.clientId is string && isValidId(data.clientId)
+        && data.name is string && data.name.size() <= 150
+        && data.status in ['planning', 'active', 'in_progress', 'under_review', 'on_hold', 'completed', 'cancelled'];
+    }
+
+    match /projects/{projectId} {
+      allow get: if isSignedIn() && isValidId(projectId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create: if isSignedIn() && isValidId(projectId) && isValidProject(incoming());
+      allow update: if isSignedIn() && isValidId(projectId) && isValidProject(incoming())
+                    && incoming().id == existing().id
+                    && incoming().orgId == existing().orgId;
+      allow delete: if isSignedIn() && isValidId(projectId);
+    }
+
+    // ==========================================
+    // TASKS COLLECTION
+    // ==========================================
+    function isValidTask(data) {
+      return data.id is string && isValidId(data.id)
+        && data.orgId is string && isValidId(data.orgId)
+        && data.clientId is string && isValidId(data.clientId)
+        && data.projectId is string && isValidId(data.projectId)
+        && data.title is string && data.title.size() <= 200
+        && data.priority in ['low', 'medium', 'high', 'urgent']
+        && data.status in [
+          'pending', 'assigned', 'in_progress', 'submitted',
+          'under_review', 'revision_required', 'approved',
+          'completed', 'overdue', 'cancelled'
+        ];
+    }
+
+    match /tasks/{taskId} {
+      allow get: if isSignedIn() && isValidId(taskId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create: if isSignedIn() && isValidId(taskId) && isValidTask(incoming());
+      allow update: if isSignedIn() && isValidId(taskId) && isValidTask(incoming())
+                    && incoming().id == existing().id
+                    && incoming().orgId == existing().orgId;
+      allow delete: if isSignedIn() && isValidId(taskId);
+    }
+
+    // ==========================================
+    // TASK TYPES COLLECTION
+    // ==========================================
+    match /taskTypes/{typeId} {
+      allow get: if isSignedIn() && isValidId(typeId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create, update: if isSignedIn() && isValidId(typeId);
+      allow delete: if isSignedIn() && isValidId(typeId);
+    }
+
+    // ==========================================
+    // ASSETS COLLECTION
+    // ==========================================
+    match /assets/{assetId} {
+      allow get: if isSignedIn() && isValidId(assetId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create, update: if isSignedIn() && isValidId(assetId);
+      allow delete: if isSignedIn() && isValidId(assetId);
+    }
+
+    // ==========================================
+    // INVOICES & PAYMENTS COLLECTION
+    // ==========================================
+    function isValidInvoice(data) {
+      return data.id is string && isValidId(data.id)
+        && data.orgId is string && isValidId(data.orgId)
+        && data.clientId is string && isValidId(data.clientId)
+        && data.invoiceNumber is string && data.invoiceNumber.size() <= 50
+        && data.totalAmount is number
+        && data.status in ['unpaid', 'partially_paid', 'paid', 'overdue', 'cancelled'];
+    }
+
+    match /invoices/{invoiceId} {
+      allow get: if isSignedIn() && isValidId(invoiceId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create: if isSignedIn() && isValidId(invoiceId) && isValidInvoice(incoming());
+      allow update: if isSignedIn() && isValidId(invoiceId) && isValidInvoice(incoming())
+                    && incoming().id == existing().id
+                    && incoming().orgId == existing().orgId;
+      allow delete: if isSignedIn() && isValidId(invoiceId);
+    }
+
+    match /payments/{paymentId} {
+      allow get: if isSignedIn() && isValidId(paymentId);
+      allow list: if isSignedIn() && resource.data.orgId is string;
+      allow create, update: if isSignedIn() && isValidId(paymentId);
+      allow delete: if isSignedIn() && isValidId(paymentId);
+    }
+
+    // ==========================================
+    // COMMENTS & ACTIVITY LOGS & NOTIFICATIONS
+    // ==========================================
+    match /taskComments/{commentId} {
+      allow get: if isSignedIn() && isValidId(commentId);
+      allow list: if isSignedIn();
+      allow create, update, delete: if isSignedIn() && isValidId(commentId);
+    }
+
+    match /activityLogs/{logId} {
+      allow get: if isSignedIn() && isValidId(logId);
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(logId);
+      allow update, delete: if false;
+    }
+
+    match /notifications/{notifId} {
+      allow get: if isSignedIn() && isValidId(notifId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if isSignedIn() && isValidId(notifId);
+    }
+  }
+}
